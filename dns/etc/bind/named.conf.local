@@ -1,0 +1,4 @@
+zone "azienda.net" {
+	type master;
+	file "/etc/bind/db.azienda.net";
+};

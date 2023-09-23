@@ -1,0 +1,29 @@
+$TTL 86400
+
+@ 	IN 	SOA 	dns.azienda.net. 	webmaster.azienda.net. (
+	
+	20230703 ; serial
+	28 ; refresh
+	14 ; retry
+	3600000 ; expire
+	0 ; negative cache ttl
+)
+
+; DNS
+
+@ 	IN 	NS 	dns.azienda.net.
+
+; Indirizzi
+
+dns	IN	A	10.0.3.52
+printer	IN 	A	10.0.1.52 
+ssh	IN	A	10.0.1.51
+tv	IN	A	10.0.1.50
+router	IN	A	10.0.0.1
+
+www	IN 	A	10.0.3.50
+www	IN 	A	10.0.3.51
+
+;router	IN	A	10.0.1.1
+;router	IN	A	10.0.2.1
+;router	IN	A	10.0.3.1

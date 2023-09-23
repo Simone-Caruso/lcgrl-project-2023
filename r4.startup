@@ -1,0 +1,9 @@
+chown quagga:quagga /etc/quagga/*.conf 
+/etc/init.d/quagga start
+
+echo "149.50.83.193 www.azienda.net" >> /etc/hosts
+echo "149.50.83.193 www.hosted.net" >> /etc/hosts
+
+iptables -t nat -A POSTROUTING -o eth3 -j MASQUERADE
+
+iptables -t nat -A POSTROUTING -s 172.17.0.0/16 -o eth0 -j MASQUERADE

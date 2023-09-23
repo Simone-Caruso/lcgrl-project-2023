@@ -1,0 +1,10 @@
+ip link set eth0 up
+
+ip link set eth0 address 00:00:00:00:00:22
+
+dhclient -v eth0
+
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+usermod --password $(openssl passwd -1 cgrl) root
+
+/etc/init.d/ssh start

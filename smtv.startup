@@ -1,0 +1,7 @@
+ip link set eth0 up
+
+ip link set eth0 address 00:00:00:00:00:11
+
+dhclient -v eth0
+
+/etc/init.d/apache2 start

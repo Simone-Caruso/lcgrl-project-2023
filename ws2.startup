@@ -1,0 +1,13 @@
+ip link set eth0 up
+ip addr add 10.0.3.51/24 dev eth0
+
+ip route add default via 10.0.3.1
+
+/etc/init.d/apache2 start
+
+a2enmod ssl
+a2enmod auth_digest
+a2ensite azienda
+a2ensite hosted
+
+service apache2 restart

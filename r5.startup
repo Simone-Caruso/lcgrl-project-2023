@@ -1,0 +1,14 @@
+ip link set eth0 up
+ip address add 192.168.1.1/24 dev eth0
+
+chown quagga:quagga /etc/quagga/*.conf 
+/etc/init.d/quagga start
+
+/etc/init.d/isc-dhcp-server start
+
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+usermod --password $(openssl passwd -1 cgrl) root
+
+/etc/init.d/ssh start
+
+iptables-restore < /firewall-router5.conf

@@ -1,0 +1,3 @@
+ip link set eth0 up
+
+dhclient -v eth0

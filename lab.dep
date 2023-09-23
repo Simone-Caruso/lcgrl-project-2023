@@ -1,0 +1,22 @@
+#---Nella pratica tali dipendenze possono essere ignorate
+
+#---Dipendenze di startup per il dhcp
+
+pc1:r1
+pc2:r1
+pc3:r1
+pc4:r1
+pc5:r5
+
+#---Dipendenze di startup per la vpn
+
+pc5:r1
+
+smtv:r1
+inserver:r1
+printer:r1
+
+#---Dipendenza per il client ssh
+
+pc1:inserver
+

@@ -1,0 +1,2 @@
+chown quagga:quagga /etc/quagga/*.conf 
+/etc/init.d/quagga start

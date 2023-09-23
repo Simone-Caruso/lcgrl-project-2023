@@ -1,0 +1,17 @@
+ip link set eth0 up
+dhclient -v eth0
+
+echo "149.50.83.193 www.azienda.net" >> /etc/hosts
+echo "149.50.83.193 www.hosted.net" >> /etc/hosts
+
+
+#---Perchè uno script per avviare il servizio di vpn ?
+#---Perchè la premessa per una vpn overlay (client-gateway in questo caso) è che il client riesca a raggiungere
+#---il gateway e il gateway riesca a raggiungere in questo caso il router di accesso del client.
+#---Il problema è che il lab all'avvio ha bisogno di tempo per far convergere la tabelle di routing sui vari router
+#---dato che queste sono impostate dinamicamente con il servizio quagga.
+#---Infatti lo script continua a fare il ping del gateway finchè esso non è raggiungibile e solo dopo lancia openvpn.
+
+
+chmod 755 vpn-start.sh
+

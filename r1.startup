@@ -1,0 +1,94 @@
+ip link set eth0 up
+ip addr add 10.0.0.1/24 dev eth0
+
+ip link set eth1 up
+ip addr add 10.0.1.1/24 dev eth1
+
+ip link set eth2 up
+#ip addr add 10.0.2.1/24 dev eth2
+
+#---Dichiariamo un'interfaccia di tipo vlan, per convenzione facciamo seguire al nome del device il tag del protocollo.
+
+ip link add link eth2 name eth2.100 type vlan id 100
+ip link set dev eth2.100 up
+
+ip addr add 10.0.2.1/24 dev eth2.100
+
+ip link set eth3 up
+ip addr add 10.0.3.1/24 dev eth3
+
+
+chown quagga:quagga /etc/quagga/*.conf 
+/etc/init.d/quagga start
+
+/etc/init.d/isc-dhcp-server start
+
+#---------PBR----------#PUNTO 17
+
+#---Definiamo una tabella di routing "200 dmz" dedicata al traffico proveniente dalla DMZ, in modo da inoltrarlo 
+#---sull'interfaccia eth4 attraverso ISP1. 
+#---Perchè allora nella tabella dmz non basta il default via in modo da far uscire tutto il traffico sulla eth4 ?
+#---Perchè in questo caso un pacchetto per un qualsiasi host delle varie lan si perderebbe su internet.
+
+#se nella tabella di routing dmz non metto le rotte locali per r1 (prese dalla)
+#tabella main, un messaggio icmp echo reply che parte per esempio dalla lan3
+#prenderebbe la default via e uscirebbe su internet verso isp1 e perdendosi
+#dato che la destinazione è un host di una lan privata e nattata.
+#invece la no-dmz è per evitare per esmpio che un ping di pc3 verso r2 esca da
+#eth4 di r1.
+
+
+echo "200 dmz" >> /etc/iproute2/rt_tables
+echo "201 no-dmz" >> /etc/iproute2/rt_tables
+
+ip route add default via 149.50.83.194 dev eth4 table dmz
+ip route add 10.0.0.0/24 dev eth0 proto kernel scope link src 10.0.0.1 table dmz
+ip route add 10.0.1.0/24 dev eth1 proto kernel scope link src 10.0.1.1 table dmz
+ip route add 10.0.2.0/24 dev eth2.100 proto kernel scope link src 10.0.2.1 table dmz
+ip route add 10.0.3.0/24 dev eth3 proto kernel scope link src 10.0.3.1 table dmz
+
+#---A cosa serve la routing rule con priorità più alta tra quelle aggiunte : 
+#--- ip rule add to 192.168.100.0/24 table main prio 29999  ?
+#---Serve per correggere il routing necessario alla VPN, altimenti un pacchetto per un indirizzo della rete VPN
+#---seguirebbe le regole di routing della tabella no-dmz che ha il default via 149.50.83.198.
+#---Ma ancora più importante è che nella tabella di routing no-dmz non abbiamo le rotte che aggiunge openvpn !
+
+
+ip rule add to 192.168.100.0/24 table main prio 29999
+ip rule add from 10.0.3.0/24 table dmz prio 30000
+ip rule add not from 10.0.3.0/24 table no-dmz prio 30001
+
+#---La tabella no-dmz ha le regole di routing per tutto il traffico che non proviene dalla dmz.
+
+ip route add default via 149.50.83.198 dev eth5 table no-dmz
+ip route add 10.0.0.0/24 dev eth0 proto kernel scope link src 10.0.0.1 table no-dmz
+ip route add 10.0.1.0/24 dev eth1 proto kernel scope link src 10.0.1.1 table no-dmz
+ip route add 10.0.2.0/24 dev eth2.100 proto kernel scope link src 10.0.2.1 table no-dmz
+ip route add 10.0.3.0/24 dev eth3 proto kernel scope link src 10.0.3.1 table no-dmz
+
+
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
+
+
+#---Imposta la pw dell'utente root come : cgrl.
+#---Successivamente avvia il servizio ssh.
+
+echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+usermod --password $(openssl passwd -1 cgrl) root
+
+/etc/init.d/ssh start
+
+
+/etc/init.d/openvpn start
+
+
+iptables-restore < /firewall-router1.conf
+
+
+chmod 755 tc-v1.sh
+chmod 755 tc-v2.sh
+
+
+
+
+

@@ -1,0 +1,6 @@
+ip link set eth0 up
+
+dhclient -v eth0
+
+chmod 400 /root/.ssh/id_rsa
+
